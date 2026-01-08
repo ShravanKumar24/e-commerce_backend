@@ -3,6 +3,7 @@ package com.ecommerce.configures;
 import com.ecommerce.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,64 +20,64 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
+@Configuration
 public class SecurityConfigure {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtFilter;
+	@Autowired
+	private JwtAuthenticationFilter jwtFilter;
 
-    @Autowired
-    private LogoutHandler logoutHandler;
+	@Autowired
+	private LogoutHandler logoutHandler;
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private UserService userService;
 
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable)
+				.sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(
+						req -> req.requestMatchers("/api/register", "/api/login", "/api/refresh-token", "/api/test")
+								.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+				.logout(logout -> logout.logoutUrl("/api/user/logout").addLogoutHandler(logoutHandler)
+						.logoutSuccessHandler(
+								(request, response, authentication) -> SecurityContextHolder.clearContext()))
+				.exceptionHandling(customizer -> customizer
+						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
-        http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(req -> req.requestMatchers("/api/**").authenticated().anyRequest().permitAll())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout.logoutUrl("/api/user/logout").addLogoutHandler(logoutHandler)
-                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
-                .exceptionHandling(customizer -> customizer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+		return http.build();
+	}
 
-        return http.build();
-    }
+	/*
+	 * @Bean CorsConfigurationSource corsConfigurationSource() { CorsConfiguration
+	 * configure=new CorsConfiguration();
+	 * configure.setAllowedOrigins(Arrays.asList("*"));
+	 * configure.setAllowedMethods(Arrays.asList("GET","PUT","PUT","DELETE"));
+	 * configure.setAllowedHeaders(Arrays.asList("Authorization"));
+	 * UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+	 * source.registerCorsConfiguration("/**", configure); return source;
+	 * 
+	 * }
+	 */
 
-       /*@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configure=new CorsConfiguration();
-		configure.setAllowedOrigins(Arrays.asList("*"));
-		configure.setAllowedMethods(Arrays.asList("GET","PUT","PUT","DELETE"));
-		configure.setAllowedHeaders(Arrays.asList("Authorization"));
-		UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configure);
-		return source;
+	@Bean
+	AuthenticationProvider authencationProvider() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(userService.userDetailsService());
+		provider.setPasswordEncoder(passwordEncoder());
+		return provider;
+	}
 
-	}*/
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-
-    @Bean
-    AuthenticationProvider authencationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService.userDetailsService());
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    AuthenticationManager autheticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-
-
+	@Bean
+	AuthenticationManager autheticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
 
 }

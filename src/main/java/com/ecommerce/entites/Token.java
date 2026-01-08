@@ -14,7 +14,7 @@ public class Token {
     private String token;
 
     @Enumerated(EnumType.STRING)
-    private TokenType tokeType;
+    private TokenType tokenType;
 
     private boolean loggedOut;
 

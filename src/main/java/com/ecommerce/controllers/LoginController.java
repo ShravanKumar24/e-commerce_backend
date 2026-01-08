@@ -9,18 +9,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 
-
-@RestController("/api/")
+@RestController("/api")
 public class LoginController {
 
     @Autowired
     private LoginService loginService;
+    
+    
+    @GetMapping("/test")
+    public String getMessage() {
+    	return "Im Live";
+    }
 
 
     @PostMapping("/register")
@@ -34,7 +39,7 @@ public class LoginController {
     }
 
     @PostMapping("/refresh-token")
-    public void getRefreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getRefreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         loginService.getRefreshToken(request, response);
     }
 

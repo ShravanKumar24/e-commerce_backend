@@ -13,13 +13,23 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
-        if(request.getServletPath().contains("/api/")){
+        String path = request.getServletPath();
+
+        // Skip JWT validation for public endpoints
+        if (path.equals("/api/login") ||
+                path.equals("/api/register") ||
+                path.equals("/demo")) {
+
             filterChain.doFilter(request, response);
-            return ;
+            return;
         }
 
-
+        // Continue filter chain
+        filterChain.doFilter(request, response);
     }
 }

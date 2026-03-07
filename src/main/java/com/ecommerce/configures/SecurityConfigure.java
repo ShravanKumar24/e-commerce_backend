@@ -38,8 +38,9 @@ public class SecurityConfigure {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(
-						req -> req.requestMatchers("/api/register", "/api/login", "/api/refresh-token", "/api/test")
+						req -> req.requestMatchers("/api/register", "/api/login", "/api/refresh-token", "/api/test","/demo")
 								.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 				.logout(logout -> logout.logoutUrl("/api/user/logout").addLogoutHandler(logoutHandler)
 						.logoutSuccessHandler(
@@ -63,9 +64,9 @@ public class SecurityConfigure {
 	 */
 
 	@Bean
-	AuthenticationProvider authencationProvider() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userService.userDetailsService());
+	AuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider provider =
+				new DaoAuthenticationProvider(userService.userDetailsService());
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}

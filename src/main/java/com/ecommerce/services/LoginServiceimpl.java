@@ -60,7 +60,7 @@ public class LoginServiceimpl implements LoginService {
 			user.setActiveStatus(true);
 
 			// Map addresses from DTO and associate with user
-			if (signupDto.getAddress() != null) {
+			if (!signupDto.getAddress().isEmpty() ) {
 				List<Address> addresses = signupDto.getAddress().stream().map(address -> {
 					address.setUser(user); // Set owning user in address
 					return address;

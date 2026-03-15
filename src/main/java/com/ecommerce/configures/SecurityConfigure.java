@@ -1,6 +1,7 @@
 package com.ecommerce.configures;
 
 import com.ecommerce.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,62 +24,73 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 @Configuration
 public class SecurityConfigure {
 
-	@Autowired
-	private JwtAuthenticationFilter jwtFilter;
+    @Autowired
+    private JwtAuthenticationFilter jwtFilter;
 
-	@Autowired
-	private LogoutHandler logoutHandler;
+    @Autowired
+    private LogoutHandler logoutHandler;
 
-	@Autowired
-	private UserService userService;
+    @Autowired
+    private UserService userService;
 
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-		http.csrf(AbstractHttpConfigurer::disable)
-				.sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(
-						req -> req.requestMatchers("/api/register", "/api/login", "/api/refresh-token", "/api/test","/demo")
-								.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
-				.authenticationProvider(authenticationProvider())
-				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-				.logout(logout -> logout.logoutUrl("/api/user/logout").addLogoutHandler(logoutHandler)
-						.logoutSuccessHandler(
-								(request, response, authentication) -> SecurityContextHolder.clearContext()))
-				.exceptionHandling(customizer -> customizer
-						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		return http.build();
-	}
 
-	/*
-	 * @Bean CorsConfigurationSource corsConfigurationSource() { CorsConfiguration
-	 * configure=new CorsConfiguration();
-	 * configure.setAllowedOrigins(Arrays.asList("*"));
-	 * configure.setAllowedMethods(Arrays.asList("GET","PUT","PUT","DELETE"));
-	 * configure.setAllowedHeaders(Arrays.asList("Authorization"));
-	 * UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
-	 * source.registerCorsConfiguration("/**", configure); return source;
-	 * 
-	 * }
-	 */
+        http.csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        req -> req.requestMatchers("/api/register", "/api/login", "/api/refresh-token", "/api/test", "/demo",
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html")
+                                .permitAll().requestMatchers("/api/**").authenticated().anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/api/logout")
+                        .addLogoutHandler(logoutHandler)
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            SecurityContextHolder.clearContext();
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        })
+                )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
-	@Bean
-	AuthenticationProvider authenticationProvider() {
-		DaoAuthenticationProvider provider =
-				new DaoAuthenticationProvider(userService.userDetailsService());
-		provider.setPasswordEncoder(passwordEncoder());
-		return provider;
-	}
+        return http.build();
+    }
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    /*
+     * @Bean CorsConfigurationSource corsConfigurationSource() { CorsConfiguration
+     * configure=new CorsConfiguration();
+     * configure.setAllowedOrigins(Arrays.asList("*"));
+     * configure.setAllowedMethods(Arrays.asList("GET","PUT","PUT","DELETE"));
+     * configure.setAllowedHeaders(Arrays.asList("Authorization"));
+     * UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+     * source.registerCorsConfiguration("/**", configure); return source;
+     *
+     * }
+     */
 
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-		return config.getAuthenticationManager();
-	}
+    @Bean
+    AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(userService.userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
 }

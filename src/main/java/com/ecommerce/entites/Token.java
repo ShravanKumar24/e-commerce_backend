@@ -9,7 +9,7 @@ import lombok.Data;
 public class Token {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
     private String token;
 

@@ -6,37 +6,30 @@ import com.ecommerce.dtos.SignupDto;
 import com.ecommerce.services.interfaces.LoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
-@RestController("/api")
+@RestController
+@RequestMapping("/api")
 public class LoginController {
 
     @Autowired
     private LoginService loginService;
-    
-    
-    @GetMapping("/test")
-    public String getMessage() {
-    	return "Im Live";
-    }
-
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> userRegister(@RequestBody SignupDto signupDto) throws Exception {
+    public ResponseEntity<AuthenticationResponse> userRegister(@Valid @RequestBody SignupDto signupDto) throws Exception {
         return new ResponseEntity<>(loginService.userRegister(signupDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> userLogin(@RequestBody SignInDto signInDto) throws Exception {
+    public ResponseEntity<AuthenticationResponse> userLogin(@Valid @RequestBody SignInDto signInDto) throws Exception {
         return new ResponseEntity<>(loginService.userLogin(signInDto), HttpStatus.OK);
     }
+
 
     @PostMapping("/refresh-token")
     public void getRefreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception {

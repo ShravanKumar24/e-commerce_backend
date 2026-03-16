@@ -14,11 +14,14 @@ public interface TokenRepo extends JpaRepository<Token, Long> {
 
     Optional<Token> findByToken(String token);
 
+    List<Token> findAllByUserIdAndLoggedOutFalse(Long userId);
+
     @Query("""
-			 select t from Token t inner join User u on t.user.id = u.id
-			 where t.user.id = :userId and t.loggedOut = false
-			 """)
-    List<Token> findAllValidTokenByUser(@Param("userId")	 Long userId);
+            select t from Token t inner join User u on t.user.id = u.id
+            where t.user.id = :userId and t.loggedOut = false
+            """)
+    List<Token> findAllValidTokenByUser(@Param("userId") Long userId);
+
 
 }
 

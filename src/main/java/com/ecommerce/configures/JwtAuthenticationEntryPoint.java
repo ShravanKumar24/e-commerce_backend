@@ -14,15 +14,22 @@ import java.time.LocalDateTime;
 
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException)
+            throws IOException, ServletException {
+
         ErrorResponse errorResponse = new ErrorResponse(
                 "Unauthorized - Please login first",
-                HttpServletResponse.SC_BAD_REQUEST,
+                HttpServletResponse.SC_UNAUTHORIZED,
                 LocalDateTime.now()
         );
+
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
 }

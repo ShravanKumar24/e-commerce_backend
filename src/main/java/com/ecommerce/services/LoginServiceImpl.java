@@ -3,20 +3,13 @@ package com.ecommerce.services;
 import com.ecommerce.dtos.AuthenticationResponse;
 import com.ecommerce.dtos.SignInDto;
 import com.ecommerce.dtos.SignupDto;
-import com.ecommerce.entites.Address;
-import com.ecommerce.entites.Role;
-import com.ecommerce.entites.Token;
-import com.ecommerce.entites.TokenType;
-import com.ecommerce.entites.User;
+import com.ecommerce.entites.*;
 import com.ecommerce.repositories.TokenRepo;
 import com.ecommerce.repositories.UserRepo;
 import com.ecommerce.services.interfaces.LoginService;
 import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -89,7 +82,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public AuthenticationResponse userLogin(SignInDto signInDto) throws Exception {
+    public AuthenticationResponse userLogin(SignInDto signInDto) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -126,7 +119,7 @@ public class LoginServiceImpl implements LoginService {
 
     private void revokeAllUserTokens(User user) {
 
-        var validUserTokens = tokenRepo.findAllValidTokenByUser(user.getId());
+        var validUserTokens = tokenRepo.findAllByUserIdAndLoggedOutFalse(user.getId());
 
         if (validUserTokens.isEmpty()) {
             return;
@@ -138,7 +131,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void getRefreshToken(HttpServletRequest request, HttpServletResponse response)
+    public AuthenticationResponse getRefreshToken(HttpServletRequest request, HttpServletResponse response)
             throws Exception, DatabindException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
@@ -146,7 +139,7 @@ public class LoginServiceImpl implements LoginService {
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
+            return null;
         }
 
         refreshToken = authHeader.substring(7);
@@ -164,13 +157,13 @@ public class LoginServiceImpl implements LoginService {
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
 
-                var authResponse = AuthenticationResponse.builder()
+                return AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .build();
 
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+        return null;
     }
 }

@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface LoginService {
 
     AuthenticationResponse userRegister(@RequestBody SignupDto signupDto);
-    AuthenticationResponse  userLogin(@RequestBody SignInDto signInDto) throws Exception;
-    void getRefreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    AuthenticationResponse  userLogin(@RequestBody SignInDto signInDto) ;
+    AuthenticationResponse getRefreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
 }

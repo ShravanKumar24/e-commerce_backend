@@ -1,5 +1,6 @@
 package com.ecommerce.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ public class ErrorResponse {
 
     private String message;
     private int status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
     private Map<String, String> errors;
 

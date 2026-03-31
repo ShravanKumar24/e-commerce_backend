@@ -83,7 +83,5 @@ public class ProductServiceImpl implements ProductService {
         responseDto.setCategoryId(product.getCategory().getId());
         responseDto.setCategoryName(product.getCategory().getCategoryName());
         return responseDto;
-
-
     }
 }

@@ -1,219 +1,171 @@
-# 🛒 E-Commerce Backend (Spring Boot)
+# 🛒 E-Commerce Backend API
 
-A secure and scalable **E-Commerce Backend API** built using **Java and Spring Boot**.
-This project implements authentication, authorization, and core backend architecture for an e-commerce system.
+![Java](https://img.shields.io/badge/Java-17-blue) ![Spring
+Boot](https://img.shields.io/badge/SpringBoot-3.x-green)
+![Build](https://img.shields.io/badge/Build-Maven-orange)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
----
+------------------------------------------------------------------------
 
-# 🚀 Tech Stack
+## 📌 Overview
 
-* Java 17+
-* Spring Boot
-* Spring Security
-* JWT Authentication
-* Spring Data JPA
-* Hibernate
-* MySQL / PostgreSQL
-* Maven
-* Lombok
+This is a **production-ready E-Commerce Backend API** built using
+**Spring Boot**.\
+It supports authentication, cart, product, and order management with
+clean architecture and best practices.
 
----
+------------------------------------------------------------------------
 
-# 🔐 Authentication Features
+## 🚀 Features
 
-✔ User Signup
-✔ User Login
-✔ JWT Token Authentication
-✔ Secure Password Encryption (BCrypt)
-✔ Token Revocation / Logout
-✔ Custom Password Validation
-✔ Global Exception Handling
+-   🔐 JWT Authentication (Login / Register / Refresh Token)
+-   👤 Role-Based Access (USER, ADMIN, VENDOR)
+-   🛍 Product & Category Management
+-   🛒 Cart & Cart Items
+-   📦 Order & Order Items
+-   🔄 Token Revocation System
+-   ❗ Global Exception Handling
+-   📄 Standard API Response Wrapper
+-   ✅ Input Validation
 
----
+------------------------------------------------------------------------
 
-# 📂 Project Structure
+## 🏗️ Tech Stack
 
-```
-com.ecommerce
-│
-├── config
-│   └── SecurityConfigure
-│
-├── controllers
-│   ├── LoginController
-│   └── Demo
-│
-├── dtos
-│   ├── AuthenticationResponse
-│   ├── SignInDto
-│   ├── SignupDto
-│   ├── ChangePassword
-│   └── ErrorResponse
-│
-├── entities
-│   ├── User
-│   ├── Role
-│   ├── Address
-│   ├── Token
-│   └── TokenType
-│
-├── repositories
-│   ├── UserRepo
-│   └── TokenRepo
-│
-├── services
-│   ├── interfaces
-│   │   ├── JwtService
-│   │   ├── LoginService
-│   │   ├── LogoutService
-│   │   └── UserService
-│   │
-│   └── implementations
-│       ├── JwtServiceImpl
-│       ├── LoginServiceImpl
-│       └── LogoutService
-│
-├── security
-│   └── JwtFilter
-│
-├── validation
-│   ├── ValidPassword
-│   └── PasswordValidator
-│
-└── errorhandlers
-    └── GlobalExceptionHandler
-```
+Layer        Technology
+  ------------ -----------------------
+Language     Java 17
+Framework    Spring Boot
+Security     Spring Security + JWT
+ORM          Hibernate / JPA
+Database     MySQL
+Build Tool   Maven
 
----
+------------------------------------------------------------------------
 
-# 🔑 Authentication Flow
+## 📂 Project Structure
 
-```
-Client Request
-      │
-      ▼
-Controller
-      │
-      ▼
-Service Layer
-      │
-      ▼
-Spring Security Filter (JWT)
-      │
-      ▼
-Database
+com.ecommerce ├── controllers ├── services │ ├── interfaces │ └── impl
+├── repositories ├── entities ├── dtos ├── configures ├── errorhandlers
+
+------------------------------------------------------------------------
+
+## 🔐 Authentication APIs
+
+Method   Endpoint
+  -------- --------------------
+POST     /api/register
+POST     /api/login
+POST     /api/refresh-token
+
+------------------------------------------------------------------------
+
+## 🛒 Cart APIs
+
+Method   Endpoint
+  -------- ------------------
+POST     /api/cart/add
+PUT      /api/cart/update
+DELETE   /api/cart/remove
+DELETE   /api/cart/clear
+GET      /api/cart
+
+------------------------------------------------------------------------
+
+## 📦 Order APIs
+
+Method   Endpoint
+  -------- -------------------------
+POST     /api/orders/place
+GET      /api/orders
+GET      /api/orders/{id}
+PUT      /api/orders/cancel/{id}
+
+------------------------------------------------------------------------
+
+## 📥 Sample Request
+
+``` json
+{
+  "firstName": "dave",
+  "lastName": "scott",
+  "email": "dave@test.com",
+  "password": "password@123"
+}
 ```
 
-### Login Flow
+------------------------------------------------------------------------
 
-1. User sends email & password.
-2. AuthenticationManager verifies credentials.
-3. System generates JWT token.
-4. Token returned to client.
-5. Client sends JWT in Authorization header for protected APIs.
+## 📤 Standard Response
 
-Example:
-
+``` json
+{
+  "success": true,
+  "message": "Order placed successfully",
+  "status": 201,
+  "data": {}
+}
 ```
-Authorization: Bearer <JWT_TOKEN>
+
+------------------------------------------------------------------------
+
+## ❗ Error Response
+
+``` json
+{
+  "message": "Invalid credentials",
+  "status": 401,
+  "timestamp": "2026-03-30T16:25:09"
+}
 ```
 
----
+------------------------------------------------------------------------
 
-# 📦 API Endpoints
+## ⚙️ Configuration
 
-### Authentication APIs
-
-| Method | Endpoint             | Description       |
-|--------|----------------------|-------------------|
-| POST   | `/api/signup`        | Register new user |
-| POST   | `/api/login`         | Authenticate user |
-| POST   | `/api/logout`        | Logout user       |
-| POST   | `/api/refresh-token` | Refresh Token     |
-
----
-
-# 🔐 Password Security
-
-Passwords are encrypted using:
-
-BCryptPasswordEncoder
-
-Rules enforced:
-
-* Minimum 8 characters
-* At least one number
-* At least one special character
-
----
-
-# ⚙️ Configuration
-
-Update `application.properties`:
-
-```
+``` properties
 spring.datasource.url=jdbc:mysql://localhost:3306/ecommerce
-spring.datasource.username=your_username
+spring.datasource.username=root
 spring.datasource.password=your_password
 
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+
+application.security.jwt.secret-key=your_secret
 ```
 
----
+------------------------------------------------------------------------
 
-# ▶️ Running the Project
+## 🔄 Flow
 
-Clone the repository
+1.  Register / Login\
+2.  Receive JWT Token\
+3.  Add products to cart\
+4.  Place order\
+5.  Cart cleared automatically
 
-```
-git clone https://github.com/yourusername/ecommerce-backend.git
-```
+------------------------------------------------------------------------
 
-Navigate to project folder
+## 🌟 Future Enhancements
 
-```
-cd ecommerce-backend
-```
+-   💳 Payment Gateway
+-   🔍 Search & Filters
+-   ⭐ Reviews & Ratings
+-   📦 Order Tracking
+-   📊 Admin Dashboard
 
-Run the application
+------------------------------------------------------------------------
 
-```
-mvn spring-boot:run
-```
+## 👨‍💻 Author
 
-Application will start on:
+Shravan Kumar\
+Java Backend Developer\
+Focused on building scalable backend systems using Spring Boot.\
+📧 bshravankumar0@gmail.com\
+🔗 LinkedIn: https://www.linkedin.com/in/shravan-kumar-a0b9ab226 \
+💻 GitHub: https://github.com/ShravanKumar24
 
-```
-http://localhost:8080
-```
+------------------------------------------------------------------------
 
----
+## ⭐ Support
 
-# 🧪 Testing APIs
-
-You can test APIs using:
-
-* Postman
-* Swagger
-* Curl
-
----
-
-# 📌 Future Improvements
-
-* Product Management APIs
-* Order Management
-* Payment Integration
-* Email OTP Authentication
-* Refresh Token Support
-* Role Based Authorization (Admin / Seller / Customer)
-
----
-
-# 👨‍💻 Author
-
-**Shravan Kumar**
-
-Java Backend Developer
-Focused on building scalable backend systems using Spring Boot.
+If you like this project, give it a ⭐ on GitHub!
